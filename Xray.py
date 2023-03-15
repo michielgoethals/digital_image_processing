@@ -32,8 +32,14 @@ high_freq_emph = np.real(ifft2(fftshift((a+ b*H)*F), img.shape))
 axs[1,0].imshow(high_freq_emph, cmap='gray')
 axs[1,0].set_title("High frequency emphasis result")
 
-# not working on high_freq_emph 
-hist_eq = cv2.equalizeHist(img)
+
+#Normalizing the image in order to equlize it afterwards
+high_freq_emph = cv2.normalize(high_freq_emph, None, 0, 255, cv2.NORM_MINMAX,  dtype=cv2.CV_8UC1)
+hist_eq = cv2.equalizeHist(high_freq_emph)
 
 axs[1,1].imshow(hist_eq, cmap='gray', vmin = 1.0, vmax = 255)
 axs[1,1].set_title('After histogram equalisation')
+
+fig.show()
+
+cv2.waitKey(100000) #cv2.waitKey(0) doesn't work
