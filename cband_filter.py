@@ -16,9 +16,7 @@ def cband_filter(shape, D0, ftype='ideal', reject = True, W = 1, n=1):
     
     for k in range(K):
         if ftype == 'ideal':
-            #or operator not working
-            mask = np.logical_or(D >= D0 - W/2, D < D0 + W/2)
-            H[mask] = 0.0
+            H[(D0 - W/2 <= D) & (D <= D0 + W/2)] = 0.0
         elif ftype == 'gaussian':
             H = 1 - np.exp(-((D**2-D0**2)/(D*W))**2)
         elif (ftype == 'butterworth') | (ftype == 'btw'):

@@ -15,9 +15,7 @@ def cnotch_filter(shape, centers, ftype='ideal', reject=True, D0=0, n=1):
     n: order(s) of the butterworth filter notches
     """
     
-    D0 = np.atleast_1d(D0)
-    K = D0.size
-    n = np.ones((K,))*n
+    K = centers.shape[0]
     H = np.ones(shape)
     
     for k in range(K):

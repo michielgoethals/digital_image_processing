@@ -34,6 +34,7 @@ rc = xy[:,::-1]
 
 center = np.array(img.shape)//2
 rc = rc - center
+
 H = cnotch_filter(img.shape,rc,ftype='ideal',reject = True,D0=3)
 
 G2 = G*H
