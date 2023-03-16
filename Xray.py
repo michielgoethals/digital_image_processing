@@ -41,5 +41,3 @@ axs[1,1].imshow(hist_eq, cmap='gray', vmin = 1.0, vmax = 255)
 axs[1,1].set_title('After histogram equalisation')
 
 fig.show()
-
-cv2.waitKey(100000) #cv2.waitKey(0) doesn't work
