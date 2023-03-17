@@ -1,6 +1,7 @@
 # dia 29 Custom periodic_noise function
 
 from scipy import signal
+import numpy as np
 
 def periodic_noise(shape, C, A = None, B = None):
     """
