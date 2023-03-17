@@ -12,12 +12,12 @@ def adpmedian(g, Smax):
         for j in range(x):
             Sxy = 3
             while Sxy <= Smax:
-                window = img[max(0, i-Sxy//2):min(y, i+Sxy//2+1),
+                window = g[max(0, i-Sxy//2):min(y, i+Sxy//2+1),
                               max(0, j-Sxy//2):min(x, j+Sxy//2+1)]
                 Zmed = np.median(window)
                 Zmax = np.max(window)
                 Zmin = np.min(window)
-                Zxy = img[i, j]
+                Zxy = g[i, j]
                 
                 A1 = Zmed - Zmin
                 A2 = Zmed - Zmax

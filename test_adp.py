@@ -1,7 +1,8 @@
+# Test of Adaptive median spatial filtering
 import cv2
 from skimage.util.noise import random_noise
-from adpfilter import adpmedian
 from matplotlib import pyplot as plt
+from adpfilter import adpmedian
 
 img = cv2.imread('./imgs/ckt-board-saltpep.tif', cv2.IMREAD_GRAYSCALE)
 
