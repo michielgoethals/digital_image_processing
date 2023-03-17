@@ -1,22 +1,24 @@
 # Test of periodic_noise function
-
-import cv2
-import numpy as np
-from periodic_noise import periodic_noise
-from matplotlib import pyplot as plt
 from skimage.morphology import square, dilation
 
+img = cv2.imread('./imgs/Apollo17boulder.tif', cv2.IMREAD_GRAYSCALE)/255
 
-img = cv2.imread('./imgs/Apollo17boulder.tif', cv2.IMREAD_GRAYSCALE)
+fig, axs = plt.subplots(ncols=3, figsize=(12,6))
+ax = axs.ravel()
+[axi.set_axis_off() for axi in ax.ravel()]
 
-C = np.array([[24, 44]]) 
+ax[0].imshow(img, cmap='gray')
+ax[0].set_title('Original')
 
-r, R = periodic_noise(img.shape, C)
+C = np.array([[0, 44],[44,0],[44,44],[44,-44]]) 
 
-g = img+r
-G = np.fft.fftshift(np.fft.fft2(g))
-Gd = dilation(np.log(1+np.abs(G)), square(3))
+r, R = periodic_noise(img.shape, C, [1,1,1,1])
+g = img + r/3
+G = np.abs(np.fft.fftshift(np.fft.fft2(g)))
+Gd =dilation(np.log(1+G),square(3))
 
-plt.subplot(131);plt.axis('off');plt.imshow(img, cmap='gray')
-plt.subplot(132);plt.axis('off');plt.imshow(g, cmap='gray')
-plt.subplot(133);plt.axis('off');plt.imshow(Gd, cmap='gray')
+ax[1].imshow(Gd, cmap='gray')
+ax[1].set_title('Frequency noise R')
+
+ax[2].imshow(g, cmap='gray')
+ax[2].set_title('spatial noise r')
