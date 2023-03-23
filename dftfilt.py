@@ -49,7 +49,7 @@ if __name__ == "__main__":
     f_ei = dftfilt(g, 1/H)
     fp_ei = dftfilt(gp, 1/Hp, pad=True)
     
-    fig, axes = plt.subplots(ncols=6, figsize=(19, 4))
+    fig, axes = plt.subplots(ncols=4, figsize=(19, 4))
     ax = axes.ravel()
     [axi.set_axis_off() for axi in ax.ravel()]
     
