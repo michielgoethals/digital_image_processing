@@ -27,7 +27,6 @@ def dftfilt(fg, H, pad=False):
     
     if pad:
         g = np.fft.ifft2(G)[M//2:3*M//2,N//2:3*N//2].real
-    # Compute the inverse Fourier transform to get the filtered image
     else:
         g = np.fft.ifft2(G).real
     
@@ -49,16 +48,18 @@ if __name__ == "__main__":
     f_ei = dftfilt(g, 1/H)
     fp_ei = dftfilt(gp, 1/Hp, pad=True)
     
-    fig, axes = plt.subplots(ncols=4, figsize=(19, 4))
+    fig, axes = plt.subplots(ncols=5, figsize=(19, 4))
     ax = axes.ravel()
     [axi.set_axis_off() for axi in ax.ravel()]
     
-    ax[0].imshow(g, cmap='gray')
-    ax[0].set_title('Filtered (no padding)')
-    ax[1].imshow(gp, cmap='gray')
-    ax[1].set_title('Filtered (with padding)')
-    ax[2].imshow(f_ei, cmap='gray')
-    ax[2].set_title('Deconvoluted (no padding)')
-    ax[3].imshow(fp_ei, cmap='gray')
-    ax[3].set_title('Deconvoluted (with padding)')
+    ax[0].imshow(img, cmap='gray')
+    ax[0].set_title('Original')
+    ax[1].imshow(g, cmap='gray')
+    ax[1].set_title('Filtered (no padding)')
+    ax[2].imshow(gp, cmap='gray')
+    ax[2].set_title('Filtered (with padding)')
+    ax[3].imshow(f_ei, cmap='gray')
+    ax[3].set_title('Deconvoluted (no padding)')
+    ax[4].imshow(fp_ei, cmap='gray')
+    ax[4].set_title('Deconvoluted (with padding)')
     
