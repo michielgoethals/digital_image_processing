@@ -34,7 +34,6 @@ def rnotch_filter(shape, D0=0, angle=0, ftype='ideal', reject=True, W=1, n=1):
     
     for k in range(K):
         if ftype == 'ideal':
-            # Not working correctly
             Hk = np.where(((W/2) <= D2), 1,0)
             Hk2 = np.where((D0[k] >= D), 1,0)
             Hk =  Hk | Hk2
