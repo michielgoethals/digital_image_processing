@@ -36,8 +36,8 @@ def rnotch_filter(shape, D0=0, angle=0, ftype='ideal', reject=True, W=1, n=1):
         if ftype == 'ideal':
             # Not working correctly
             Hk = np.where(((W/2) <= D2), 1,0)
-            Hk2 = np.where((D0[k] <= D), 1,0)
-            Hk = Hk | Hk2    
+            Hk2 = np.where((D0[k] >= D), 1,0)
+            Hk =  Hk | Hk2
         elif ftype == 'gaussian':
             Hk = 1-np.exp(-0.5*((D**2)/(D0[k])**2))
             Hk2 = np.exp(-0.5*((D2**2)/(W)**2))
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     
     F = np.fft.fftshift(np.fft.fft2(img))
     
-    H = rnotch_filter(img.shape, D0=10, ftype='btw', W=10, angle=90) 
+    H = rnotch_filter(img.shape, D0=10, ftype='ideal', W=10, angle=90) 
     
     G = F*H
     g = np.real(np.fft.ifft2 (np.fft.fftshift(G))) 
