@@ -42,8 +42,7 @@ def get_tf_model(src,dst, xTransform=AffineTransform, n_keypoints=500,min_sample
 if __name__ == "__main__":
     
 
-    im = cv2.imread('..\..\imgs\yoda.jpg', IMREAD_ANYCOLOR) 
-    cv2.imshow('image',im)
+    im = cv2.imread('.\.\imgs\yoda.jpg', IMREAD_ANYCOLOR) 
     c = np.array(im.shape[:2])//2
     
     T = np.diag([1,1,1])
@@ -55,7 +54,6 @@ if __name__ == "__main__":
     A = np.dot(Ti,np.dot(R,T))
     
     imA= warp(im,np.linalg.inv(A),order=3)
-    cv2.imshow('image',imA)
     
     fig1, ax1 = plt.subplots(nrows=1,ncols=1,figsize=(20,10))
     matches, kp_or, kp_tf = get_matches(im,imA,n_keypoints=200, ax=ax1)
