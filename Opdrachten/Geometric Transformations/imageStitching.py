@@ -20,13 +20,17 @@ def stitch(ims, order=[1,0,2], mask_idx=None,
         ims_sorted[idx] = ims[i]
     
     # apply _stitch
-
+    
     merged = _stitch(ims_sorted[0],ims_sorted[1],mask_idx=1,cval=-1,show=False,tf_model=tf_model,
         n_keypoints=500,min_samples=4,residual_threshold=2)
     
+    for i in range(len(order)-3):
+        merged = _stitch(merged,ims_sorted[i+1],mask_idx=1,cval=-1,show=False,tf_model=tf_model,
+        n_keypoints=500,min_samples=4,residual_threshold=2)
+        
     # repeat _stitch with merged and next im until cval =0
     
-    merged = _stitch(merged,ims_sorted[2],mask_idx=1,cval=0,show=False,tf_model=tf_model,
+    merged = _stitch(merged,ims_sorted[len(order)-1],mask_idx=1,cval=0,show=False,tf_model=tf_model,
         n_keypoints=500,min_samples=4,residual_threshold=2)
     
     
@@ -37,7 +41,7 @@ if __name__ == "__main__":
     files=['DFM_4209.jpg','DFM_4210.jpg','DFM_4211.jpg']
     ims = []
     for i,file in enumerate(files):
-        im = cv2.imread('././imgs/'+file ,cv2.IMREAD_ANYCOLOR)                 # inlezen van alle foto's
+        im = cv2.imread('../../imgs/'+file ,cv2.IMREAD_ANYCOLOR)                 # inlezen van alle foto's
         im = im[:,500:500+1987,:]                                              # foto bijsnijden voor beter stiching
 
         #Rescale -> vanaf versie skimage v0.19 is multichannel veranderd naar channel_axis

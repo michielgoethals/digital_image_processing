@@ -42,7 +42,7 @@ def get_tf_model(src,dst, xTransform=AffineTransform, n_keypoints=500,min_sample
 if __name__ == "__main__":
     
 
-    im = cv2.imread('.\.\imgs\yoda.jpg', IMREAD_ANYCOLOR) 
+    im = cv2.imread('..\..\imgs\yoda.jpg', IMREAD_ANYCOLOR) 
     c = np.array(im.shape[:2])//2
     
     T = np.diag([1,1,1])

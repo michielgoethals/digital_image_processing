@@ -68,8 +68,8 @@ def _stitch(im0,im1, mask_idx=None,cval=0,show=True,tf_model=None,
 
 if __name__ == "__main__":
     
-    src_im = cv2.imread('.\.\imgs\daenerys.jpg',IMREAD_ANYCOLOR) #0 means imread_grayscale
-    dst_im = cv2.imread('.\.\imgs\\times-square.jpg',IMREAD_ANYCOLOR)
+    src_im = cv2.imread('..\..\imgs\daenerys.jpg',IMREAD_ANYCOLOR) #0 means imread_grayscale
+    dst_im = cv2.imread('..\..\imgs\\times-square.jpg',IMREAD_ANYCOLOR)
     
     r,c = src_im.shape[:2]
     src_corners = np.array([[0,0],[0,r],[c,0],[c,r]])
