@@ -86,6 +86,6 @@ if __name__ == "__main__":
     _stitch(dst_im,src_im,mask_idx=1,cval=0,show=True,tf_model=tf_model,
             n_keypoints=500,min_samples=4,residual_threshold=2)
     
-    input("Press Enter to continue...")
+    cv2.waitKey()
 
 
