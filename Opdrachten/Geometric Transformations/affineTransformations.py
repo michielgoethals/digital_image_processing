@@ -38,6 +38,7 @@ def get_tf_model(src,dst, xTransform=AffineTransform, n_keypoints=500,min_sample
     tf_model, _ =ransac((src,dst),xTransform,min_samples=min_samples,residual_threshold=residual_threshold, **kwargs)
     return tf_model
 
+
 if __name__ == "__main__":
     
 
@@ -54,7 +55,7 @@ if __name__ == "__main__":
     A = np.dot(Ti,np.dot(R,T))
     
     imA= warp(im,np.linalg.inv(A),order=3)
-    cv2.imshow('image',imA
+    cv2.imshow('image',imA)
     
     fig1, ax1 = plt.subplots(nrows=1,ncols=1,figsize=(20,10))
     matches, kp_or, kp_tf = get_matches(im,imA,n_keypoints=200, ax=ax1)
