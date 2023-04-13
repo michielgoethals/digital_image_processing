@@ -16,10 +16,14 @@ def get_bounding_box(pts):
     bot_right_x = int(max(point[0] for point in pts))
     bot_right_y = int(max(point[1] for point in pts))
     
-    return [top_left_x, top_left_y, (bot_right_x - top_left_x), (bot_right_y - top_left_y)]
+    width = bot_right_x - top_left_x 
+    height = bot_right_y - top_left_y
+    
+    #return [top_left_x, top_left_y, width, height]         # Opgave vroeg voor deze output 
+    return [top_left_x, top_left_y, bot_right_x, bot_right_y]   # maar code is duidelijker indien enkel gewerkt wordt met coordinaten
     
 def warp_triangle(img, bbox, tf_M, output_shape):
-    sub_img = img[bbox[1]:bbox[3],bbox[0]:bbox[2]]                                  # Select all pixels from the bounding box  
+    sub_img = img[bbox[1]:bbox[3],bbox[0]:bbox[2]]        # Select all pixels from the bounding box  
     transformed = warp(sub_img, tf_M, output_shape=output_shape, mode='reflect')    
     #mode parameter -> {constant, edge, symmetric, reflect, wrap},
     return transformed
@@ -32,7 +36,7 @@ def get_triangle_mask(triangle_mask, bbox, output_shape):
     return mask
     
 def warp_image(img, points, triangles, points_m, imageShape):
-    
+
     warped = np.zeros((max(img.shape[0], imageShape[0]), max(img.shape[1], imageShape[1]),3))
     
     for tri in triangles.simplices:
@@ -42,6 +46,7 @@ def warp_image(img, points, triangles, points_m, imageShape):
         
         bb1 = get_bounding_box(t1)
         bbm = get_bounding_box(tm)
+    
 
         M = AffineTransform()
         M.estimate(t1-bb1[:2],tm-bbm[:2])        
@@ -50,10 +55,10 @@ def warp_image(img, points, triangles, points_m, imageShape):
             continue
         else: 
             M = np.linalg.inv(M.params)
-        
+            
+    
         output_shape = warped[bbm[1]:bbm[3]+1, bbm[0]:bbm[2]+1].shape[:2]
-        
-        print(output_shape)
+    
 
         wt1 = warp_triangle(img, bb1, M, output_shape)
         mask = get_triangle_mask(tm, bbm, output_shape)
@@ -64,8 +69,8 @@ def warp_image(img, points, triangles, points_m, imageShape):
 
 if __name__ == "__main__":
     
-    im1 = "../../imgs/faces/nicolas_cage.jpg"   # Path to first image
-    im2 = "../../imgs/faces/daenerys.jpg"       # Path to second image
+    im1 = "../../imgs/faces/daenerys.jpg"   # Path to first image
+    im2 = "../../imgs/faces/gal_gadot.jpg"       # Path to second image
     
     img1 = imageio.imread(im1)                  # Load the first image
     img1 = skimage.util.img_as_float(img1)      # Convert image data type
@@ -96,18 +101,22 @@ if __name__ == "__main__":
     ax.triplot(pts1[:,0], pts1[:,1], triangles1.simplices)
     ax.triplot(ptsm[:,0], ptsm[:,1], triangles2.simplices)  
  
-    alpha = 0.5                                                         # INPUT VALUE
+    alpha = 0.4                                                       # INPUT VALUE
     ptsm = (1-alpha)*pts1 + alpha*pts2          # Calculate intermediate points
                            
 
     triangles1 = Delaunay(pts1)                                         # Get list of triangles (image1)
     warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)       # Warp image
+    
+    triangles2 = Delaunay(pts2)                                         # Get list of triangles (image2)
+    warped2 = warp_image(img2, pts2, triangles2,ptsm, img1.shape)       # Warp image
+
 
     newWidth = int((1-alpha)*img1.shape[0] + alpha*img2.shape[0])       # Calculate the new width and height of the warped images
     newHeight = int((1-alpha)*img1.shape[1] + alpha*img2.shape[1])
     
     plt.rcParams['figure.figsize'] = [30, 30]
     plt.subplot(121);plt.title('warp 1',fontsize=20);plt.imshow(warped1[0:newWidth, 0:newHeight]) 
-        
+    plt.subplot(122);plt.title('warp 2',fontsize=20);plt.imshow(warped2[0:newWidth, 0:newHeight])      
            
 
