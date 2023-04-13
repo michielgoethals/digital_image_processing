@@ -45,7 +45,7 @@ def feature_detection_dlib(img, model: str, corners=True):
     if corners:
         pts = add_corners(pts, img)
     
-    
+    pts = pts[0]
     return pts
     
 
@@ -69,16 +69,17 @@ if __name__ == "__main__":
     color = (255, 0, 0) # Red color of points on image
     thickness = -1      # Color the inside of circles
     
-    for p in pts68:
-        for (x, y) in p:
-            
-           cv2.circle(image, (x, y), radius, color, thickness)     # Draw a circle on all points
+    pts68 = pts68.reshape((-1, 2)) # Reshape numpy.int32 to list otherwise will not iterate
+    
+    for (x, y) in pts68:
+        cv2.circle(image, (x, y), radius, color, thickness)     # Draw a circle on all points
     
     image5 = imageio.imread(path_to_img)        # load the image again
     image5 = skimage.util.img_as_float(image5)  # Convert image data type 
     
-    for p in pts5:
-        for (x, y) in p:
+    pts5 = pts5.reshape((-1, 2))
+
+    for (x, y) in pts5:
           cv2.circle(image5, (x, y), radius, color, thickness)
           
 
