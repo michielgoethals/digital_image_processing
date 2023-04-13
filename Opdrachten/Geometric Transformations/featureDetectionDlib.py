@@ -21,10 +21,10 @@ def add_corners(pts, img):
     BM = [int(width/2),height]  # Bottom midpoint
     LM = [0,int(height/2)]      # Left midpoint
     RM = [width,int(height/2)]  # Right midpoint 
-           
-    cornersAndMidpoints = [TL, TR, BR, BL, TM, RM, BM, LM]  # Place all above points in array
     
-    pts.extend(cornersAndMidpoints)
+    cornersAndMidpoints = np.array([TL,TR,BL,BR, LM, RM, TM, BM])  # Place all above points in array
+
+    pts = np.vstack((pts, cornersAndMidpoints))
     
     return pts
 
@@ -44,10 +44,7 @@ def feature_detection_dlib(img, model: str, corners=True):
         shape = face_utils.shape_to_np(shape)
         pts.append(shape)
         
-    
-    pts = pts[0]
-    
-    pts = pts.tolist()
+    pts = pts[0] # This creates a numpy array
     
     if corners:
         pts = add_corners(pts, img)
@@ -76,13 +73,14 @@ if __name__ == "__main__":
     color = (255, 0, 0) # Red color of points on image
     thickness = -1      # Color the inside of circles
 
-    
+    pts68 = pts68.reshape((-1, 2)) # Reshape because a np.int32 is not iterable
     for (x, y) in pts68:
         cv2.circle(image, (x, y), radius, color, thickness)     # Draw a circle on all points
     
     image5 = imageio.imread(path_to_img)        # load the image again
     image5 = skimage.util.img_as_float(image5)  # Convert image data type 
     
+    pts5 = pts5.reshape((-1, 2))
     for (x, y) in pts5:
           cv2.circle(image5, (x, y), radius, color, thickness)
           
