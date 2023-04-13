@@ -32,7 +32,7 @@ def feature_detection_dlib(img, model: str, corners=True):
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(p)
     
-    gray = img_as_ubyte(rgb2gray(image))
+    gray = img_as_ubyte(rgb2gray(img))
     rects = detector(gray, upsample_num_times = 0)
     
     pts = []
@@ -43,7 +43,7 @@ def feature_detection_dlib(img, model: str, corners=True):
         pts.append(shape)
     
     if corners:
-        pts = add_corners(pts, image)
+        pts = add_corners(pts, img)
     
     
     return pts
