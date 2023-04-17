@@ -98,36 +98,25 @@ if __name__ == "__main__":
     
     pts1 = feature_detection_dlib(img1, model68, corners=True)
     pts2 = feature_detection_dlib(img2, model68, corners=True)
-    
-    alpha = 0.6
-    ptsm = (1-alpha)*pts1 + alpha*pts2 # pts1 and pts2 has to be numpy arrays 
 
-    triangles = Delaunay(pts2)
-    triangles1 = Delaunay(pts1)
-    triangles2 = Delaunay(ptsm)
-    
-    fig, (ax) = plt.subplots(nrows=1, ncols=1)
-    ax.imshow(img2)
-    ax.triplot(pts2[:,0], pts2[:,1], triangles.simplices)
-    ax.triplot(pts1[:,0], pts1[:,1], triangles1.simplices)
-    ax.triplot(ptsm[:,0], ptsm[:,1], triangles2.simplices)  
- 
-    alpha = 0.4                                  # Input alpha value
+    alpha = 0.5                                 # Input alpha value
     ptsm = (1-alpha)*pts1 + alpha*pts2          # Calculate intermediate points
                            
 
-    triangles1 = Delaunay(pts1)                                         # Get list of triangles (image1)
-    warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)       # Warp image
+    triangles1 = Delaunay(pts1)      # Get list of triangles (image1) 
+    triangles2 = Delaunay(pts2)      # Get list of triangles (image2)
+                                          
+    warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)  # Warp image1                                
+    warped2 = warp_image(img2, pts2, triangles2, ptsm, img1.shape)   # Warp image2
+
+    morphed = img_as_ubyte((1-alpha)* warped1 + alpha * warped2)
     
-    triangles2 = Delaunay(pts2)                                         # Get list of triangles (image2)
-    warped2 = warp_image(img2, pts2, triangles2,ptsm, img1.shape)       # Warp image
-
-
     newWidth = int((1-alpha)*img1.shape[0] + alpha*img2.shape[0])       # Calculate the new width and height of the warped images
     newHeight = int((1-alpha)*img1.shape[1] + alpha*img2.shape[1])
     
     plt.rcParams['figure.figsize'] = [30, 30]
-    plt.subplot(121);plt.title('warp 1',fontsize=20);plt.imshow(warped1[0:newWidth, 0:newHeight]) 
-    plt.subplot(122);plt.title('warp 2',fontsize=20);plt.imshow(warped2[0:newWidth, 0:newHeight])      
-           
+    plt.subplot(131);plt.title('warp 1',fontsize=20);plt.imshow(warped1[0:newWidth, 0:newHeight]);plt.axis('off')
+    plt.subplot(132);plt.title('warp 2',fontsize=20);plt.imshow(warped2[0:newWidth, 0:newHeight]);plt.axis('off')   
+    plt.subplot(133);plt.title('morphed',fontsize=20);plt.imshow(morphed[0:newWidth, 0:newHeight]);plt.axis('off')      
+                  
 
