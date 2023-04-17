@@ -11,19 +11,26 @@ from affineTransformations import get_tf_model
 
 
 def get_bounding_box(pts):
+    # X coordinate is point[0], Y coordinate is point[1]
     top_left_x = int(min(point[0] for point in pts))
     top_left_y = int(min(point[1] for point in pts))
-    bot_right_x = int(max(point[0] for point in pts))
-    bot_right_y = int(max(point[1] for point in pts))
     
-    width = bot_right_x - top_left_x 
-    height = bot_right_y - top_left_y
+    width = int(max(point[0] for point in pts)) - top_left_x
+    height = int(max(point[1] for point in pts)) - top_left_y
     
-    #return [top_left_x, top_left_y, width, height]         # Opgave vroeg voor deze output 
-    return [top_left_x, top_left_y, bot_right_x, bot_right_y]   # maar code is duidelijker indien enkel gewerkt wordt met coordinaten
-    
+    # Return int array with (x,y) coordinates of top left corner, width and height
+    return [top_left_x, top_left_y, width, height]
+
 def warp_triangle(img, bbox, tf_M, output_shape):
-    sub_img = img[bbox[1]:bbox[3],bbox[0]:bbox[2]]        # Select all pixels from the bounding box  
+    
+    x0, y0, width, height = bbox 
+    
+    xmax = x0 + width
+    ymax = y0 + height
+    
+    # Select all pixels from the bounding box 
+    sub_img = img[y0:ymax, x0:xmax]
+    
     transformed = warp(sub_img, tf_M, output_shape=output_shape, mode='reflect')    
     #mode parameter -> {constant, edge, symmetric, reflect, wrap},
     return transformed
@@ -55,15 +62,19 @@ def warp_image(img, points, triangles, points_m, imageShape):
             continue
         else: 
             M = np.linalg.inv(M.params)
-            
+        
+        x0, y0, width, height = bbm 
     
-        output_shape = warped[bbm[1]:bbm[3]+1, bbm[0]:bbm[2]+1].shape[:2]
-    
-
+        xmax = x0 + width
+        ymax = y0 + height
+        
+        output_shape = warped[y0:ymax, x0:xmax].shape[:2]
+        
         wt1 = warp_triangle(img, bb1, M, output_shape)
+        
         mask = get_triangle_mask(tm, bbm, output_shape)
 
-        warped[bbm[1]:bbm[3]+1, bbm[0]:bbm[2]+1] = warped[bbm[1]:bbm[3]+1, bbm[0]:bbm[2]+1]*(1-mask)+ mask*wt1
+        warped[y0:ymax, x0:xmax] = warped[y0:ymax, x0:xmax]*(1-mask)+ mask*wt1
         
     return warped
 
@@ -101,7 +112,7 @@ if __name__ == "__main__":
     ax.triplot(pts1[:,0], pts1[:,1], triangles1.simplices)
     ax.triplot(ptsm[:,0], ptsm[:,1], triangles2.simplices)  
  
-    alpha = 0.4                                                       # INPUT VALUE
+    alpha = 0.4                                  # Input alpha value
     ptsm = (1-alpha)*pts1 + alpha*pts2          # Calculate intermediate points
                            
 
