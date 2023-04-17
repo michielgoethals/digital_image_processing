@@ -70,7 +70,7 @@ def warp_image(img, points, triangles, points_m, imageShape):
         output_shape = warped[y0:ymax, x0:xmax].shape[:2]
         
         wt1 = warp_triangle(img, bb1, M, output_shape)
-        
+    
         mask = get_triangle_mask(tm, bbm, output_shape)
 
         warped[y0:ymax, x0:xmax] = warped[y0:ymax, x0:xmax]*(1-mask)+ mask*wt1
