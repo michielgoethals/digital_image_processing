@@ -7,7 +7,6 @@ from scipy.spatial import Delaunay
 from skimage.transform import warp, AffineTransform
 from skimage.draw import polygon
 from featureDetectionDlib import feature_detection_dlib
-from affineTransformations import get_tf_model
 
 
 def get_bounding_box(pts):
@@ -87,7 +86,7 @@ if __name__ == "__main__":
     img1 = skimage.util.img_as_float(img1)      # Convert image data type
 
     img2 = imageio.imread(im2)                  # load the second image
-    img2 = skimage.util.img_as_float(img2)      # Convert
+    img2 = skimage.util.img_as_float(img2)      # Convert image data type
     
     # Plot the images
     plt.subplot(121);plt.title('Image 1',fontsize=20);plt.axis('off');plt.imshow(img1)
@@ -98,25 +97,29 @@ if __name__ == "__main__":
     
     pts1 = feature_detection_dlib(img1, model68, corners=True)
     pts2 = feature_detection_dlib(img2, model68, corners=True)
-
-    alpha = 0.5                                 # Input alpha value
-    ptsm = (1-alpha)*pts1 + alpha*pts2          # Calculate intermediate points
-                           
-
+    
     triangles1 = Delaunay(pts1)      # Get list of triangles (image1) 
     triangles2 = Delaunay(pts2)      # Get list of triangles (image2)
-                                          
-    warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)  # Warp image1                                
-    warped2 = warp_image(img2, pts2, triangles2, ptsm, img1.shape)   # Warp image2
 
+    # Input alpha value
+    alpha = 0.5
+    
+    # Calculate intermediate points                                 
+    ptsm = (1-alpha)*pts1 + alpha*pts2                                         
+    
+    # Warped images
+    warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)  # Warp image1                                
+    warped2 = warp_image(img2, pts2, triangles2, ptsm, img1.shape)  # Warp image2
+        
+    # Morphed image
     morphed = img_as_ubyte((1-alpha)* warped1 + alpha * warped2)
     
-    newWidth = int((1-alpha)*img1.shape[0] + alpha*img2.shape[0])       # Calculate the new width and height of the warped images
+    # Calculate new width and height of the warped images
+    newWidth = int((1-alpha)*img1.shape[0] + alpha*img2.shape[0])       
     newHeight = int((1-alpha)*img1.shape[1] + alpha*img2.shape[1])
     
-    plt.rcParams['figure.figsize'] = [30, 30]
-    plt.subplot(131);plt.title('warp 1',fontsize=20);plt.imshow(warped1[0:newWidth, 0:newHeight]);plt.axis('off')
-    plt.subplot(132);plt.title('warp 2',fontsize=20);plt.imshow(warped2[0:newWidth, 0:newHeight]);plt.axis('off')   
-    plt.subplot(133);plt.title('morphed',fontsize=20);plt.imshow(morphed[0:newWidth, 0:newHeight]);plt.axis('off')      
+    plt.subplot(131);plt.title('Warped 1',fontsize=30);plt.imshow(warped1[0:newWidth, 0:newHeight]);plt.axis('off')
+    plt.subplot(132);plt.title('Warped 2',fontsize=30);plt.imshow(warped2[0:newWidth, 0:newHeight]);plt.axis('off')   
+    plt.subplot(133);plt.title('Morphed images',fontsize=30);plt.imshow(morphed[0:newWidth, 0:newHeight]);plt.axis('off')      
                   
 
