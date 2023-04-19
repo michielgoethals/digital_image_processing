@@ -8,6 +8,7 @@ from piecewiseWarping import warp_image
 import cv2
 import matplotlib.pyplot as plt
 from skimage.transform import resize
+import os
 
 def face_morph(image1, image2, model, alphas=0.5, landmarks=False):
     # Generate features and add corners and midpoints
@@ -57,20 +58,21 @@ def face_morph(image1, image2, model, alphas=0.5, landmarks=False):
 
 def save_frames_to_video(file_name, frames):
     frame_size = frames[0].shape[:2]
+    resized_frames = [cv2.resize(frame, frame_size) for frame in frames]
     frame_rate = 10
     codec = cv2.VideoWriter_fourcc(*'mp4v')
     
     writer = cv2.VideoWriter(file_name, codec, frame_rate, frame_size)
 
-    for frame in frames:
+    for frame in resized_frames:
         writer.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
     writer.release()
     
     
 if __name__ == "__main__":
     
-    im1 = "../../imgs/faces/daenerys.jpg"       # Path to first image
-    im2 = "../../imgs/faces/gal_gadot.jpg"      # Path to second image
+    im1 = "././imgs/faces/daenerys.jpg"       # Path to first image
+    im2 = "././imgs/faces/gal_gadot.jpg"      # Path to second image
     
     img1 = imageio.imread(im1)                  # Load the first image
     img1 = skimage.util.img_as_float(img1)      # Convert image data type
@@ -79,7 +81,8 @@ if __name__ == "__main__":
     img2 = skimage.util.img_as_float(img2)      # Convert image data type
     
     # Path to model 68 landmark
-    model68 = "./data/facelandmarks/shape_predictor_68_face_landmarks.dat"
+    pwd = os.path.dirname(__file__)
+    model68 = pwd + "/data/facelandmarks/shape_predictor_68_face_landmarks.dat"
     
     # Make a list of alphas from 0 to 1 in 20 steps
     alphas = np.linspace(0, 1, 50) 
