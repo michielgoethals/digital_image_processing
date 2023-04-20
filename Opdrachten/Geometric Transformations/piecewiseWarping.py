@@ -7,6 +7,7 @@ from scipy.spatial import Delaunay
 from skimage.transform import warp, AffineTransform
 from skimage.draw import polygon
 from featureDetectionDlib import feature_detection_dlib
+import os
 
 
 def get_bounding_box(pts):
@@ -79,8 +80,8 @@ def warp_image(img, points, triangles, points_m, imageShape):
 
 if __name__ == "__main__":
     
-    im1 = "../../imgs/faces/daenerys.jpg"   # Path to first image
-    im2 = "../../imgs/faces/gal_gadot.jpg"       # Path to second image
+    im1 = "././imgs/faces/daenerys.jpg"   # Path to first image
+    im2 = "././imgs/faces/gal_gadot.jpg"       # Path to second image
     
     img1 = imageio.imread(im1)                  # Load the first image
     img1 = skimage.util.img_as_float(img1)      # Convert image data type
@@ -93,7 +94,8 @@ if __name__ == "__main__":
     plt.subplot(122);plt.title('Image 2',fontsize=20);plt.axis('off');plt.imshow(img2)
     
     # Path to landmark
-    model68 = "./data/facelandmarks/shape_predictor_68_face_landmarks.dat" 
+    pwd = os.path.dirname(__file__)
+    model68 = pwd + "/data/facelandmarks/shape_predictor_68_face_landmarks.dat" 
     
     pts1 = feature_detection_dlib(img1, model68, corners=True)
     pts2 = feature_detection_dlib(img2, model68, corners=True)
@@ -120,6 +122,7 @@ if __name__ == "__main__":
     
     plt.subplot(131);plt.title('Warped 1',fontsize=30);plt.imshow(warped1[0:newWidth, 0:newHeight]);plt.axis('off')
     plt.subplot(132);plt.title('Warped 2',fontsize=30);plt.imshow(warped2[0:newWidth, 0:newHeight]);plt.axis('off')   
-    plt.subplot(133);plt.title('Morphed images',fontsize=30);plt.imshow(morphed[0:newWidth, 0:newHeight]);plt.axis('off')      
+    plt.subplot(133);plt.title('Morphed images',fontsize=30);plt.imshow(morphed[0:newWidth, 0:newHeight]);plt.axis('off')
+    plt.show()      
                   
 

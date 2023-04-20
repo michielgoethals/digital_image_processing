@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from skimage import img_as_ubyte
 from skimage.color import rgb2gray
 import cv2
+import os
 
 
 def add_corners(pts, img):
@@ -62,8 +63,10 @@ if __name__ == "__main__":
     image = skimage.util.img_as_float(image)                        # Convert image data type
     
     # path to landmarks
-    model68 = "./data/facelandmarks/shape_predictor_68_face_landmarks.dat"  
-    model5 =  "./data/facelandmarks/shape_predictor_5_face_landmarks.dat"
+    # path to landmarks
+    pwd = os.path.dirname(__file__)
+    model68 = pwd + "/data/facelandmarks/shape_predictor_68_face_landmarks.dat"  
+    model5 =  pwd + "/data/facelandmarks/shape_predictor_5_face_landmarks.dat"
     
     #predict points
     pts68 = feature_detection_dlib(image, model68, corners=True)
