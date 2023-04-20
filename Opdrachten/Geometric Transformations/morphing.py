@@ -40,7 +40,7 @@ def face_morph(image1, image2, model, alphas=0.5, landmarks=False):
         ptsm = (1-alpha)*pts1 + alpha*pts2 
         
         # Warped images
-        warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)  # Warp image1                                
+        warped1 = warp_image(img1, pts1, triangles1, ptsm, img2.shape)   # Warp image1                                
         warped2 = warp_image(img2, pts2, triangles2, ptsm, img1.shape)   # Warp image2
         
         # Morphed image
@@ -57,10 +57,15 @@ def face_morph(image1, image2, model, alphas=0.5, landmarks=False):
     return frames
 
 def save_frames_to_video(file_name, frames):
+
     frame_size = frames[0].shape[:2]
-    resized_frames = [cv2.resize(frame, frame_size) for frame in frames]
-    frame_rate = 10
+    frame_rate = 30
     codec = cv2.VideoWriter_fourcc(*'mp4v')
+
+    #make sure all frames are the same size
+    resized_frames = [cv2.resize(frame, frame_size) for frame in frames]
+
+
     
     writer = cv2.VideoWriter(file_name, codec, frame_rate, frame_size)
 
@@ -71,8 +76,8 @@ def save_frames_to_video(file_name, frames):
     
 if __name__ == "__main__":
     
-    im1 = "././imgs/faces/daenerys.jpg"       # Path to first image
-    im2 = "././imgs/faces/gal_gadot.jpg"      # Path to second image
+    im1 = "././imgs/faces/daenerys.jpg"         # Path to first image
+    im2 = "././imgs/faces/gal_gadot.jpg"        # Path to second image
     
     img1 = imageio.imread(im1)                  # Load the first image
     img1 = skimage.util.img_as_float(img1)      # Convert image data type
@@ -84,8 +89,8 @@ if __name__ == "__main__":
     pwd = os.path.dirname(__file__)
     model68 = pwd + "/data/facelandmarks/shape_predictor_68_face_landmarks.dat"
     
-    # Make a list of alphas from 0 to 1 in 20 steps
-    alphas = np.linspace(0, 1, 50) 
+    # Make a list of alphas from 0 to 1 in 100 steps
+    alphas = np.linspace(0, 1, 100) 
     
     # Calculate frames 
     frames = face_morph(img1, img2, model68, alphas=alphas, landmarks=False)
