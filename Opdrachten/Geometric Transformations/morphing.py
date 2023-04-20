@@ -95,8 +95,9 @@ if __name__ == "__main__":
     # Calculate frames 
     frames = face_morph(img1, img2, model68, alphas=alphas, landmarks=False)
     
-    plt.subplot(121);plt.title('First frame',fontsize=30);plt.imshow(frames[0]);plt.axis('off')
-    plt.subplot(122);plt.title('Last frame',fontsize=30);plt.imshow(frames[19]);plt.axis('off')                 
+    plt.subplot(131);plt.title('First frame');plt.imshow(frames[0]);plt.axis('off')
+    plt.subplot(132);plt.title('Middle frame');plt.imshow(frames[49]);plt.axis('off')
+    plt.subplot(133);plt.title('Last frame');plt.imshow(frames[99]);plt.axis('off')                 
     
     # Save frames to MP4 file and store in same dir as this file 
     save_frames_to_video("frames_video.mp4", frames)
