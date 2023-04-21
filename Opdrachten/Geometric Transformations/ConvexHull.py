@@ -11,14 +11,14 @@ import cv2
 import os
 
 
-def convexHull(img,model,DEBUG=False):
+def convexHull(img,model,DEBUG=False, limited=None):
 	"""
 	Calculates the convex hull of the face of an image
 
 	Args:
 		img : Image to fit convex hull to
 		model : Model of the featurepoints of the face :  shape_predictor_68_face_landmarks.dat
-			   DEBUG: plot face with convex hull and triangles
+		DEBUG: plot face with convex hull and triangles
 
 	Returns:
 		convex_h: Points that make up the convex hull
@@ -27,14 +27,19 @@ def convexHull(img,model,DEBUG=False):
 	pts = feature_detection_dlib(img,model)
 	convex = ConvexHull(pts[:-8])
 	convex_h = np.zeros((0,2), tuple)
-	for i in convex.vertices:
-		convex_h = np.vstack((convex_h,pts[i]))
+	if limited is None:
+		for i in convex.vertices:
+			convex_h = np.vstack((convex_h,pts[i]))
+	if limited is not None:
+		for i in limited:
+			convex_h = np.vstack((convex_h,pts[i]))
 	convex_b = np.vstack((convex_h, pts[1]))                        # convexHull samenplaatsen met cornerpunten om Ddelaunay triangles te kunnen maken     
 	triangles = Delaunay(convex_b)
 	if DEBUG:
 		fig, (ax) = plt.subplots(nrows=1, ncols=1)
 		ax.imshow(img)
-		ax.plot(pts[:,0], pts[:,1], 'o', color='red')
+		ax.triplot(convex_b[:,0], convex_b[:,1], triangles.simplices)
+		plt.show()
 	return convex_h, triangles, convex_b, convex.vertices
 
 
@@ -89,10 +94,12 @@ if __name__ == "__main__":
 	plt.title("Alpha blending")
 	plt.show()
 
+
+	
 	# Test pyramid blend function
 	gmask = get_gaussian_pyramid(mask2*255)
 	Limg1 = get_laplacian_pyramid(img1)
-	Limg2 = get_laplacian_pyramid(queen)
+	Limg2 = get_laplacian_pyramid(queen*255)
 
 	blended = pyramid_blend(gmask ,Limg1, Limg2)
 

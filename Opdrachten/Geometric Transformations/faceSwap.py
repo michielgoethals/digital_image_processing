@@ -7,7 +7,8 @@ from featureDetectionDlib import feature_detection_dlib
 import matplotlib.pyplot as plt
 from ConvexHull import convexHull, create_mask, pyramid_blend
 from pyramidBlending import get_laplacian_pyramid, get_gaussian_pyramid, pyramid_blend
-import os  
+import os
+
 
 def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(True,True),detail='convexhull',plot_Delaunay_Keypoints='True'):
     """_summary_
@@ -66,9 +67,9 @@ def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(Tr
             div = len(con1)-len(con2)
             print("div: "+str(div))
             if div > 0:
-                con1,tri1,conf1,vert1 = convexHull(img1,model=model,limited=vert2,DEBUG=plot_Delaunay_Keypoints)
+                con1,tri1,conf1,vert1 = convexHull(img1,model=model,DEBUG=plot_Delaunay_Keypoints)
             elif div < 0:
-                con2,tri2,conf2,vert2 = convexHull(img2,model=model,limited=vert1,DEBUG=plot_Delaunay_Keypoints)
+                con2,tri2,conf2,vert2 = convexHull(img2,model=model,DEBUG=plot_Delaunay_Keypoints)
             # print(len(tri1.simplices))
             # print(len(tri2.simplices))
             try:
@@ -118,3 +119,27 @@ def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(Tr
             return swap_cv2
         else:
             print('error wrong blendmode try: pyramid,alpha or cv')
+
+if __name__ == "__main__":
+    image_folder = "././imgs/faces/"
+    img_name = "gal_gadot.jpg" 
+    galgadot = imageio.imread(image_folder+img_name)            
+
+    plt.imshow(galgadot)    
+    plt.show()
+    img_name = "nicolas_cage.jpg" 
+    nickcage = imageio.imread(image_folder+img_name)       
+
+    plt.imshow(nickcage)
+    plt.show()
+
+    swapped = swap_faces(galgadot,nickcage,blendmode='pyramid',plot_Delaunay_Keypoints=True,detail='convexhull',flip_faces=(False,True))
+    plt.figure()
+    plt.imshow(swapped)
+
+
+
+
+
+
+
