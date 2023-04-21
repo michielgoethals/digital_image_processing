@@ -2,11 +2,12 @@ from piecewiseWarping import warp_image
 import numpy as np
 from scipy.spatial import ConvexHull, Delaunay
 from featureDetectionDlib import feature_detection_dlib
+from pyramidBlending import get_laplacian_pyramid, get_gaussian_pyramid, pyramid_blend
 import matplotlib.pyplot as plt
 from skimage.draw import polygon
 import imageio
+import cv2
 import os
-
 
 
 def convexHull(img,model,DEBUG=False):
@@ -36,8 +37,6 @@ def convexHull(img,model,DEBUG=False):
 	return convex_h, triangles, convex_b, convex.vertices
 
 
-
-
 def create_mask(shape, pts):
 	"""
 	Make the mask of the convex hull
@@ -57,7 +56,7 @@ def create_mask(shape, pts):
 	return mask
 
 if __name__ == "__main__":
-	image_folder = "imgs/faces/"
+	image_folder = "../../imgs/faces/"
 	img_name = "nicolas_cage.jpg"
 	img_name2 = "queen.jpg"
 	img1 = imageio.imread(image_folder+img_name)
@@ -71,20 +70,39 @@ if __name__ == "__main__":
 
 	warped2 = warp_image(img2, pts2, triangles2, pts1, img1.shape)
 	plt.imshow(warped2)
+	plt.title("Warped images")
 	plt.show()
 	con1,tri1,conf,vert = convexHull(warped2,model=model)
 	mask = create_mask(warped2.shape, con1)
 	plt.imshow(mask*255)
+	plt.title("Convex hull mask")
 	plt.show()
 	r,c = img1.shape[:2]
 	mask2 = mask[:r,:c]
 	plt.imshow(mask2*255)
+	plt.title("Convex hull mask resized")
 	plt.show()
 	queen = warped2[:r,:c]
 	face = queen*mask2
 	body = img1/255*(1-mask2)
-	plt.imshow(face+body)
+	alpha = body + face
+	plt.imshow(alpha)
+	plt.title("Alpha blending")
 	plt.show()
+
+	# Test pyramid blend function
+	gmask = get_gaussian_pyramid(mask2)
+	Limg1 = get_laplacian_pyramid(img1)
+	Limg2 = get_laplacian_pyramid(img2)
+
+	blended = pyramid_blend(gmask ,Limg1, Limg2)
+
+	plt.imshow(blended)
+	plt.title("Pyramid blending")
+	plt.show()
+
+
+
 
 
 
