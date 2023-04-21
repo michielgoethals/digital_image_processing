@@ -52,8 +52,8 @@ def get_gaussian_pyramid(img,downscale=2,**kwargs):
             var = pyramid_reduce(var, downscale=downscale, multichannel=True)                              
         else:  
             var = pyramid_reduce(var, downscale=downscale, channel_axis=2)
-        row = var.shape[0]
-        column = var.shape[1]
+        row = row/2
+        column = column/2
     G_pyramid.append(var)
     return G_pyramid
 
@@ -112,6 +112,7 @@ def reconstruct_image_from_laplacian_pyramid(pyramid):
 def pyramid_blend(gmask,limg1,limg2):
     """
     Blend 2 laplacian pyramid images using gmask (gaussian pyramid mask)
+
     Args:
         gmask Gaussian pyramid: Gaussian pyramid of mask
         limg1 Laplacian pyramid: laplacian pyramid of 1st image 
@@ -122,17 +123,16 @@ def pyramid_blend(gmask,limg1,limg2):
     """
 
     blend = []
+
     for i in range(0,len(gmask)):
         gmaskT = cv2.resize(gmask[i],dsize=(limg1[i].shape[1],limg1[i].shape[0]),interpolation=cv2.INTER_CUBIC)
-        blend.append(((1-gmask[i])*limg1[i])+(gmask[i]*limg2[i]))
-
-    
-    blended = reconstruct_image_from_laplacian_pyramid(blend)
+        blend.append(((1-gmaskT)*limg1[i])+(gmaskT*limg2[i]))
+        blended = reconstruct_image_from_laplacian_pyramid(blend)
 
     return blended
 
 if __name__ == "__main__":
-    image_folder = "../../imgs/faces/"
+    image_folder = "././imgs/faces/"
     img_name = "superman.jpg"
     img = imageio.imread(image_folder+img_name)
     plt.figure()
