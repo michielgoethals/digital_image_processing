@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.transform import pyramid_reduce, pyramid_expand
 import cv2
-
+from packaging import version
+import skimage
 
 def plot_pyramid(pyramid):
     """
@@ -47,7 +48,10 @@ def get_gaussian_pyramid(img,downscale=2,**kwargs):
 
     while row > 8 and column > 8:
         G_pyramid.append(var)
-        var = pyramid_reduce(var, downscale=downscale, channel_axis=2)
+        if version.parse(skimage.__version__) < version.parse("0.19.0"):       # elke foto toegevoegd aan ims array
+            var = pyramid_reduce(var, downscale=downscale, multichannel=True)                              
+        else:  
+            var = pyramid_reduce(var, downscale=downscale, channel_axis=2)
         row = var.shape[0]
         column = var.shape[1]
     G_pyramid.append(var)
@@ -71,7 +75,10 @@ def get_laplacian_pyramid(img,upscale=2, **kwargs):
         if i == len(pyramid)-1:
             L_pyramid.append(pyramid[i])
         else:
-            prev = pyramid_expand(pyramid[i+1],upscale=upscale, channel_axis=2)
+            if version.parse(skimage.__version__) < version.parse("0.19.0"):       # elke foto toegevoegd aan ims array
+                 prev = pyramid_expand(pyramid[i+1],upscale=upscale, multichannel=True)                             
+            else:  
+                prev = pyramid_expand(pyramid[i+1],upscale=upscale, channel_axis=2)
             L_pyramid.append(cv2.resize(pyramid[i],dsize=(prev.shape[1],prev.shape[0]),interpolation=cv2.INTER_CUBIC)-prev)
     L_pyramid=L_pyramid[::-1]
     return L_pyramid
@@ -93,7 +100,11 @@ def reconstruct_image_from_laplacian_pyramid(pyramid):
         if i == len(pyramid)-1:
             R.append(pyramid[len(pyramid)-1])
         else:
-            prev = pyramid_expand(R[len(pyramid)-2-i], channel_axis=2)
+            #Rescale -> vanaf versie skimage v0.19 is multichannel veranderd naar channel_axis
+            if version.parse(skimage.__version__) < version.parse("0.19.0"):       # elke foto toegevoegd aan ims array
+                 prev = pyramid_expand(R[len(pyramid)-2-i], multichannel=True)                              
+            else:  
+                prev = pyramid_expand(R[len(pyramid)-2-i], channel_axis=2)
             R.append(cv2.resize(pyramid[i],dsize=(prev.shape[1],prev.shape[0]),interpolation=cv2.INTER_CUBIC)+prev)
     return R[len(R)-1]
 
@@ -101,7 +112,7 @@ def reconstruct_image_from_laplacian_pyramid(pyramid):
 
 
 if __name__ == "__main__":
-    image_folder = "imgs/faces/"
+    image_folder = "../../imgs/faces/"
     img_name = "superman.jpg"
     img = imageio.imread(image_folder+img_name)
     plt.figure()
