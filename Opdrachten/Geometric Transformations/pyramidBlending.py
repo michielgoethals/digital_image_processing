@@ -109,7 +109,27 @@ def reconstruct_image_from_laplacian_pyramid(pyramid):
     return R[len(R)-1]
 
 
+def pyramid_blend(gmask,limg1,limg2):
+    """
+    Blend 2 laplacian pyramid images using gmask (gaussian pyramid mask)
+    Args:
+        gmask Gaussian pyramid: Gaussian pyramid of mask
+        limg1 Laplacian pyramid: laplacian pyramid of 1st image 
+        limg2 Laplacian pyramid: laplacian pyramid of 2nd image
 
+    Returns:
+        image array: Blended image
+    """
+
+    blend = []
+    for i in range(0,len(gmask)):
+        gmaskT = cv2.resize(gmask[i],dsize=(limg1[i].shape[1],limg1[i].shape[0]),interpolation=cv2.INTER_CUBIC)
+        blend.append(((1-gmask[i])*limg1[i])+(gmask[i]*limg2[i]))
+
+    
+    blended = reconstruct_image_from_laplacian_pyramid(blend)
+
+    return blended
 
 if __name__ == "__main__":
     image_folder = "../../imgs/faces/"
