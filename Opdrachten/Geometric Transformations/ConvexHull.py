@@ -1,8 +1,9 @@
+
 from piecewiseWarping import warp_image
 import numpy as np
 from scipy.spatial import ConvexHull, Delaunay
 from featureDetectionDlib import feature_detection_dlib
-from pyramidBlending import get_laplacian_pyramid, get_gaussian_pyramid, pyramid_blend
+from pyramidBlending import get_laplacian_pyramid, get_gaussian_pyramid, pyramid_blend,plot_pyramid
 import matplotlib.pyplot as plt
 from skimage.draw import polygon
 import imageio
@@ -42,11 +43,11 @@ def create_mask(shape, pts):
 	Make the mask of the convex hull
 
 	Args:
-	shape : Shape of warped image
-	pts : Points of the convex hull
+		shape : Shape of warped image
+		pts : Points of the convex hull
 
 	Returns:
-	Mask: Return the mask for the face
+		Mask: Return the mask for the face
 	"""
 	mask = np.zeros(shape, dtype=np.uint8)
 	row = pts[:,1]
@@ -56,8 +57,8 @@ def create_mask(shape, pts):
 	return mask
 
 if __name__ == "__main__":
-	image_folder = "../../imgs/faces/"
-	img_name = "nicolas_cage.jpg"
+	image_folder = "././imgs/faces/"
+	img_name = "meghan_markle.jpg"
 	img_name2 = "queen.jpg"
 	img1 = imageio.imread(image_folder+img_name)
 	img2 = imageio.imread(image_folder+img_name2)
@@ -69,31 +70,29 @@ if __name__ == "__main__":
 	triangles2 = Delaunay(pts2)
 
 	warped2 = warp_image(img2, pts2, triangles2, pts1, img1.shape)
-	plt.imshow(warped2)
-	plt.title("Warped images")
-	plt.show()
+	#plt.imshow(warped2)
+	#plt.title("Warped images")
+	#plt.show()
 	con1,tri1,conf,vert = convexHull(warped2,model=model)
 	mask = create_mask(warped2.shape, con1)
-	plt.imshow(mask*255)
-	plt.title("Convex hull mask")
-	plt.show()
+	#plt.imshow(mask*255)
+	#plt.title("Convex hull mask")
+	#plt.show()
 	r,c = img1.shape[:2]
 	mask2 = mask[:r,:c]
-	plt.imshow(mask2*255)
-	plt.title("Convex hull mask resized")
-	plt.show()
+	#plt.imshow(mask2)
+	#plt.title("Convex hull mask resized")
+	#plt.show()
 	queen = warped2[:r,:c]
-	face = queen*mask2
-	body = img1/255*(1-mask2)
-	alpha = body + face
+	alpha = img1/255*(1-mask2) + queen*mask2
 	plt.imshow(alpha)
 	plt.title("Alpha blending")
 	plt.show()
 
 	# Test pyramid blend function
-	gmask = get_gaussian_pyramid(mask2)
+	gmask = get_gaussian_pyramid(mask2*255)
 	Limg1 = get_laplacian_pyramid(img1)
-	Limg2 = get_laplacian_pyramid(img2)
+	Limg2 = get_laplacian_pyramid(queen)
 
 	blended = pyramid_blend(gmask ,Limg1, Limg2)
 

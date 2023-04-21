@@ -79,9 +79,12 @@ def warp_image(img, points, triangles, points_m, imageShape):
     return warped
 
 if __name__ == "__main__":
-    
-    im1 = "././imgs/faces/daenerys.jpg"   # Path to first image
-    im2 = "././imgs/faces/gal_gadot.jpg"       # Path to second image
+    try:                                        # Try to load images from local folder
+        im1 = "././imgs/faces/daenerys.jpg"     # Path to first image
+        im2 = "././imgs/faces/gal_gadot.jpg"    # Path to second image
+    except FileNotFoundError:
+        im1 = "../../imgs/faces/daenerys.jpg"     # Path to first image
+        im2 = "../../imgs/faces/gal_gadot.jpg"    # Path to second image
     
     img1 = imageio.imread(im1)                  # Load the first image
     img1 = skimage.util.img_as_float(img1)      # Convert image data type

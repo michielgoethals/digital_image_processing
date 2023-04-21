@@ -56,7 +56,10 @@ def feature_detection_dlib(img, model: str, corners=True):
 
 if __name__ == "__main__":
     
-    path_to_img = "././imgs/faces/nicolas_cage.jpg"
+    try: 
+        path_to_img = "././imgs/faces/nicolas_cage.jpg"
+    finally:
+        path_to_img = "././imgs/faces/nicolas_cage.jpg"
     
 
     image = imageio.imread(path_to_img)    # load the image
