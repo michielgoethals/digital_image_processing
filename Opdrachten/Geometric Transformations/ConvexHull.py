@@ -11,7 +11,7 @@ import cv2
 import os
 
 
-def convexHull(img,model,DEBUG=False, limited=None):
+def convexHull(img,model, limited=None):
 	"""
 	Calculates the convex hull of the face of an image
 
@@ -35,11 +35,7 @@ def convexHull(img,model,DEBUG=False, limited=None):
 			convex_h = np.vstack((convex_h,pts[i]))
 	convex_b = np.vstack((convex_h, pts[1]))                        # convexHull samenplaatsen met cornerpunten om Ddelaunay triangles te kunnen maken     
 	triangles = Delaunay(convex_b)
-	if DEBUG:
-		fig, (ax) = plt.subplots(nrows=1, ncols=1)
-		ax.imshow(img)
-		ax.triplot(convex_b[:,0], convex_b[:,1], triangles.simplices)
-		plt.show()
+
 	return convex_h, triangles, convex_b, convex.vertices
 
 
@@ -62,7 +58,7 @@ def create_mask(shape, pts):
 	return mask
 
 if __name__ == "__main__":
-	image_folder = "././imgs/faces/"
+	image_folder = "../../imgs/faces/"
 	img_name = "meghan_markle.jpg"
 	img_name2 = "queen.jpg"
 	img1 = imageio.imread(image_folder+img_name)
