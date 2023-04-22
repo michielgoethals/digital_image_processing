@@ -6,11 +6,12 @@ from scipy.spatial import Delaunay
 from featureDetectionDlib import feature_detection_dlib
 import matplotlib.pyplot as plt
 from ConvexHull import convexHull, create_mask, pyramid_blend
-from pyramidBlending import get_laplacian_pyramid, get_gaussian_pyramid, pyramid_blend, plot_pyramid
+from pyramidBlending import get_laplacian_pyramid, get_gaussian_pyramid, pyramid_blend
 import os
 
 def show_swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(True,True),detail='convexhull',plot_Delaunay_Keypoints='True', Title = 'FaceSwap'):
     img = swap_faces(img1,img2,blendmode,faceorder,flip_faces,detail,plot_Delaunay_Keypoints)
+    fig = plt.figure()
     plt.imshow(img)
     plt.title(Title)
     plt.show()
@@ -32,10 +33,11 @@ def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(Tr
     Returns:
         Faceswapped image: Return the image of the face of image 2 placed on the body of image 1 with the required blending technique in place
     """
-    r, c = img1.shape[:2]
+    
+    r, c = img1.shape[:2] 
 
     if img2 is None:
-        if faceorder[0] == 0:       # split image 1 in two halves and hope the faces are in a different half
+        if faceorder[0] == 0:       # split image 1 in twee helften en ga er van uit dat de er in elke helft een gezicht zit
             img2 = img1[:,c//2:c]   
             img1 = img1[:,0:c//2]
         else:
@@ -56,34 +58,54 @@ def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(Tr
         if flip_faces[1]:
             img2 = np.fliplr(img2)
         
+        
         if detail == 'convexhull':
-            con1,tri1,conf1,vert1 = convexHull(img1,model=model,DEBUG=plot_Delaunay_Keypoints)
-            con2,tri2,conf2,vert2 = convexHull(img2,model=model,DEBUG=plot_Delaunay_Keypoints)
+            con1,tri1,conf1,vert1 = convexHull(img1,model=model)
+            con2,tri2,conf2,vert2 = convexHull(img2,model=model)
             div = len(con1)-len(con2)
             print("div: "+str(div))
             if div > 0:
-                con1,tri1,conf1,vert1 = convexHull(img1,model=model,limited=vert2,DEBUG=plot_Delaunay_Keypoints)
+                con1,tri1,conf1,vert1 = convexHull(img1,model=model,limited=vert2)
             elif div < 0:
-                con2,tri2,conf2,vert2 = convexHull(img2,model=model,limited=vert1,DEBUG=plot_Delaunay_Keypoints)
-            warped = warp_image(img2, conf2, tri2,conf1, img1.shape)
-
+                con2,tri2,conf2,vert2 = convexHull(img2,model=model,limited=vert1)
+            warped = warp_image(img2, conf2, tri2 ,conf1, img1.shape)
+            
             if plot_Delaunay_Keypoints == True:
-                plt.figure()
-                plt.title("warped")
-                plt.imshow(warped)
+                fig, (ax) = plt.subplots(nrows=1, ncols=2)
+                ax[0].axis('off')
+                ax[0].set_title("Delaunay Keypoints image 1")
+                ax[0].imshow(img1)
+                ax[0].triplot(conf1[:,0], conf1[:,1], tri1.simplices)
+                ax[1].axis('off')
+                ax[1].set_title("Delaunay Keypoints image 2")
+                ax[1].imshow(img2)
+                ax[1].triplot(conf2[:,0], conf2[:,1], tri2.simplices)
+        
         else:
             pts1 = feature_detection_dlib(img1,model, True) 
             pts2 = feature_detection_dlib(img2,model, True)
-            # print(len(pts1))
-            triangles2 = Delaunay(pts2)
-            warped = warp_image(img2, pts2, triangles2,pts1, img1.shape)
+            tri1 = Delaunay(pts1)
+            tri2 = Delaunay(pts2)
+            warped = warp_image(img2, pts2, tri2, pts1, img1.shape)
+            
+            if plot_Delaunay_Keypoints == True:
+                fig, (ax) = plt.subplots(nrows=1, ncols=2)
+                ax[0].axis('off')
+                ax[0].set_title("Delaunay Keypoints image 1")
+                ax[0].imshow(img1)
+                ax[0].triplot(pts1[:,0], pts1[:,1], tri1.simplices)
+                ax[1].axis('off')
+                ax[1].set_title("Delaunay Keypoints image 2")
+                ax[1].imshow(img2)
+                ax[1].triplot(pts2[:,0], pts2[:,1], tri2.simplices)
+            
+            
 
-
-        con1,tri1,conf,vert = convexHull(warped,model=model)            # bereken de convexhull van de featurepoints van img1
+        con1,tri1,conf,vert = convexHull(warped, model=model)           # bereken de convexhull van de featurepoints van img1
         mask = create_mask(warped.shape, con1)[:r,:c]                   # maak een masker van de convexhull van img1
         warped2 = warped[:r,:c]                                         # herschaal het masker naar de grootte van img1
+        
                                                 
-
         if blendmode == 'pyramid':
             gmask = get_gaussian_pyramid(mask*255)                      # maak een gaussian pyramid van het masker
             Limage1 = get_laplacian_pyramid(img1)                       # maak een laplacian pyramid van img1
@@ -95,8 +117,10 @@ def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(Tr
             img1c = np.uint8(img1)
             img2c = np.uint8(warped2*255)
             mask3 = np.uint8(mask*255)
-            center = (c//2,r//2)
-            swap_cv2 = cv2.seamlessClone(img2c,img1c,mask3,center, cv2.NORMAL_CLONE)
+            
+            center = (c//2, r//2)                   
+            
+            swap_cv2 = cv2.seamlessClone(img2c, img1c, mask3, center, cv2.NORMAL_CLONE)
             return swap_cv2
         
         if blendmode == 'alpha':
@@ -104,10 +128,8 @@ def swap_faces(img1,img2=None,blendmode='pyramid',faceorder=(0,1),flip_faces=(Tr
             return blended
 
 
-
-
 if __name__ == "__main__":
-    image_folder = "././imgs/faces/"
+    image_folder = "../../imgs/faces/"
 
     img_name = "gal_gadot.jpg" 
     galgadot = imageio.imread(image_folder+img_name)            
@@ -121,17 +143,18 @@ if __name__ == "__main__":
     trump = imageio.imread(image_folder+img_name)
     img_name = "daenerys.jpg"
     daenerys = imageio.imread(image_folder+img_name)
+    img_name = "superman.jpg"
+    superman = imageio.imread(image_folder+img_name)
 
 
-
-    show_swap_faces(galgadot,nickcage,blendmode='pyramid',plot_Delaunay_Keypoints=True,detail='feature',flip_faces=(False,True), Title="pyramid blend")
-    show_swap_faces(galgadot,nickcage,blendmode='cv',plot_Delaunay_Keypoints=True,detail='feature',flip_faces=(False,True), Title="cv2 blend")
-    show_swap_faces(galgadot,nickcage,blendmode='alpha',plot_Delaunay_Keypoints=True,detail='feature',flip_faces=(False,True), Title="alpha blend")
+    show_swap_faces(galgadot,nickcage,blendmode='pyramid',plot_Delaunay_Keypoints=True,detail='feature',flip_faces=(False,True), Title="Pyramid blend")
+    show_swap_faces(galgadot,nickcage,blendmode='cv',plot_Delaunay_Keypoints=True,detail='convexhull',flip_faces=(False,True), Title="CV2 blend")
+    show_swap_faces(galgadot,nickcage,blendmode='alpha',plot_Delaunay_Keypoints=True,detail='feature',flip_faces=(False,True), Title="Alpha blend")
     show_swap_faces(brangelina,blendmode='pyramid',plot_Delaunay_Keypoints=True,detail='Full feature', Title="One picture")
-    show_swap_faces(hillary,trump,blendmode='cv',plot_Delaunay_Keypoints=False,detail='Full feature')
-    show_swap_faces(hillary,trump,blendmode='pyramid',plot_Delaunay_Keypoints=False,detail='Full feature')
-    show_swap_faces(daenerys,galgadot,blendmode='pyramid',plot_Delaunay_Keypoints=False, detail='Full feature', Title="full feature")
-    show_swap_faces(daenerys,galgadot,blendmode='pyramid',plot_Delaunay_Keypoints=False, detail='convexhull', Title="convexhull")
+    show_swap_faces(hillary,trump,blendmode='cv',plot_Delaunay_Keypoints=False,detail='Full feature',flip_faces=(False,False), Title="Full feature CV2 blend")
+    show_swap_faces(hillary,trump,blendmode='pyramid',plot_Delaunay_Keypoints=False,detail='Full feature', Title="Full feature Pyramid blend")
+    show_swap_faces(daenerys,galgadot,blendmode='pyramid',plot_Delaunay_Keypoints=False, detail='Full feature', Title="Full feature Pyramid blend")
+    show_swap_faces(daenerys,galgadot,blendmode='pyramid',plot_Delaunay_Keypoints=True, detail='convexhull', Title="Convexhull Pyramid blend")
 
 
 
